@@ -54,8 +54,8 @@ app.get('/goty', async(required, response) => {
 // POST
 app.post('/goty/:id', async(required, response) => {
   const id = required.params.id;
-  const gotyRef = db.collection('goty').doc(id);
-  const gameSnap = await gotyRef.get();
+  const gameRef = db.collection('goty').doc(id);
+  const gameSnap = await gameRef.get();
 
   if (!gameSnap.exists) {
     response.status(404).json({
@@ -64,7 +64,15 @@ app.post('/goty/:id', async(required, response) => {
     });
   }
   else {
-    response.json('juego existe');
+    let before = gameSnap.data() || { votes: 0 };
+    await gameRef.update({
+      votes: before.votes + 1
+    });
+    
+    response.json({
+      ok: true,
+      message: `Gracias por tu voto a ${ before.name }`
+    });
   }
 });
 
