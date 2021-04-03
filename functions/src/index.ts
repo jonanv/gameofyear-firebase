@@ -25,11 +25,11 @@ export const getGoty = functions.https.onRequest(async(request, response) => {
   // const nombre = request.query.nombre || 'Sin Nombre';
   const gotyRef = db.collection('goty');
   const docsSnap = await gotyRef.get();
-  const juegos = docsSnap.docs.map(
+  const games = docsSnap.docs.map(
     doc => doc.data()
   );
 
-  response.json(juegos);
+  response.json(games);
 });
 
 // Express
@@ -40,14 +40,32 @@ app.use(
   })
 );
 
+// GET
 app.get('/goty', async(required, response) => {
   const gotyRef = db.collection('goty');
   const docsSnap = await gotyRef.get();
-  const juegos = docsSnap.docs.map(
+  const games = docsSnap.docs.map(
     doc => doc.data()
   );
 
-  response.json(juegos);
+  response.json(games);
+});
+
+// POST
+app.post('/goty/:id', async(required, response) => {
+  const id = required.params.id;
+  const gotyRef = db.collection('goty').doc(id);
+  const gameSnap = await gotyRef.get();
+
+  if (!gameSnap.exists) {
+    response.status(404).json({
+      ok: false,
+      message: 'No existe un juego con ese ID ' + id
+    });
+  }
+  else {
+    response.json('juego existe');
+  }
 });
 
 export const api = functions.https.onRequest(app);
